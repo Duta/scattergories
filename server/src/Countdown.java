@@ -28,7 +28,7 @@ public class Countdown extends DefaultLabel {
     protected void onComplete() {}
 
     private void updateText() {
-        setText(seconds + "s");
+        setText(String.format("%d:%02d", seconds/60, seconds%60));
     }
 
     public void start() {

@@ -17,13 +17,15 @@ import javafx.stage.Stage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main extends Application {
     private static final Random RGEN = new Random();
-    private static final int NUM_ROUNDS = 4;
+    private static final int NUM_ROUNDS = 3;
     private static final int NUM_CATEGORIES = 12;
     private BorderPane root;
     private MenuBar menuBar;
@@ -37,6 +39,7 @@ public class Main extends Application {
     private List<Player> players;
     private int roundNum;
     private List<String> categories;
+    private char letter;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -97,7 +100,8 @@ public class Main extends Application {
         new Thread(new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                serverSocket = new ServerSocket(4444);
+                serverSocket = new ServerSocket();
+                serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost().getHostName(), 4444));
                 return null;
             }
 
@@ -179,7 +183,7 @@ public class Main extends Application {
         startCountdownButton.setDefaultButton(true);
         startCountdownButton.setDisable(true);
         startCountdownButton.setOnAction(event -> {
-            char letter = getLetter();
+            getLetter();
             new Thread(new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
@@ -193,7 +197,7 @@ public class Main extends Application {
 
                 @Override
                 protected void succeeded() {
-                    root.setCenter(new Countdown(20) {
+                    root.setCenter(new Countdown(180) {
                         @Override
                         protected void onComplete() {
                             roundComplete();
@@ -231,8 +235,8 @@ public class Main extends Application {
         }).start();
     }
 
-    private char getLetter() {
-        return (char)('A' + RGEN.nextInt(26));
+    private void getLetter() {
+        letter = (char)('A' + RGEN.nextInt(26));
     }
 
     private void getCategories() throws IOException {
@@ -285,7 +289,10 @@ public class Main extends Application {
         for(Player player : players) {
             String answer = player.getAnswer(ans);
             CheckBox box = new CheckBox(player.getName() + " - " + (answer.isEmpty() ? "<no answer>" : answer));
-            if(answer.isEmpty()) {
+            box.setTextFill(Paint.valueOf("white"));
+            box.setStyle("-fx-font-size: 18px;");
+            char firstLetter = answer.isEmpty() ? 0 : answer.charAt(0);
+            if(answer.isEmpty() || (firstLetter != letter && (firstLetter - ('a'-'A') != letter))) {
                 box.setDisable(true);
             }
             playerBoxes.put(box, player);
@@ -314,9 +321,11 @@ public class Main extends Application {
 
     private void gameComplete() {
         CentralPane pane = new CentralPane();
+        pane.getChildren().add(new DefaultLabel("Scores"));
         for(Player player : players) {
-            pane.getChildren().add(new Label(player.getName() + ": " + player.getScore()));
+            pane.getChildren().add(new DefaultLabel(player.getName() + ": " + player.getScore(), 20));
         }
+        root.setCenter(pane);
     }
 
     private void fullscreenAction(ActionEvent actionEvent) {

@@ -1,0 +1,23 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" build-on-make="true" name="Scattergories">
+    <output-path>$PROJECT_DIR$/out/artifacts/Scattergories</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="alias" value="" />
+        <option name="appClass" value="Main" />
+        <option name="description" value="" />
+        <option name="enabledSigning" value="true" />
+        <option name="htmlParamFile" value="" />
+        <option name="keystore" value="" />
+        <option name="paramFile" value="" />
+        <option name="title" value="Scattergories" />
+        <option name="vendor" value="Bertie Wheen" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="ScattergoriesServer.jar">
+        <element id="module-output" name="server" />
+      </element>
+    </root>
+  </artifact>
+</component>

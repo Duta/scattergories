@@ -1,5 +1,3 @@
-package sample;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -35,18 +33,25 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         stage = primaryStage;
 
+        Label hostLabel = new Label("Host:");
         Label nameLabel = new Label("Name:");
+        TextField hostField = new TextField();
         TextField nameField = new TextField();
         Button connectButton = new Button("Connect");
         connectButton.setDefaultButton(true);
         connectButton.setOnAction(event -> {
             String name = nameField.getText();
+            String host = hostField.getText();
+            if(host.isEmpty()) {
+                showPopupMessage("No host entered", primaryStage);
+                return;
+            }
             if(name.isEmpty()) {
                 showPopupMessage("No name entered", primaryStage);
                 return;
             }
             try {
-                socket = new Socket("127.0.0.1", 4444);
+                socket = new Socket(host, 4444);
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out.println(name);
@@ -75,9 +80,11 @@ public class Main extends Application {
         initialPane.setAlignment(Pos.CENTER);
         initialPane.setHgap(10);
         initialPane.setVgap(10);
-        initialPane.add(nameLabel, 0, 0);
-        initialPane.add(nameField, 1, 0);
-        initialPane.add(buttonBox, 0, 1, 2, 1);
+        initialPane.add(hostLabel, 0, 0);
+        initialPane.add(hostField, 1, 0);
+        initialPane.add(nameLabel, 0, 1);
+        initialPane.add(nameField, 1, 1);
+        initialPane.add(buttonBox, 0, 2, 2, 1);
 
         primaryStage.setTitle("Scattergories");
         primaryStage.setScene(new Scene(initialPane, 350, 250));
@@ -112,7 +119,7 @@ public class Main extends Application {
         Platform.runLater(() -> answerFields.forEach(field -> field.setDisable(true)));
         System.out.println("Time's up");
         for(int i = 0; i < categories.size(); i++) {
-            out.println(answerFields.get(i).getText());
+            out.println(answerFields.get(i).getText().trim());
         }
         System.out.println("Sent");
     }
